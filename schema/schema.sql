@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS Loan (
     member_id INTEGER NOT NULL,
     loan_date DATE NOT NULL,
     return_date DATE,
+    fine INTEGER DEFAULT 0,
+    actual_return_date DATE,
     FOREIGN KEY (book_id) REFERENCES Book(id),
     FOREIGN KEY (member_id) REFERENCES Member(id)
 );

@@ -1,7 +1,7 @@
 class MemberDaoQueries:
     @staticmethod
     def get_all_members():
-        return "SELECT * FROM Member"
+        return "SELECT * FROM Members"
 
     @staticmethod
     def get_member_by_id():
@@ -18,3 +18,11 @@ class MemberDaoQueries:
     @staticmethod
     def delete_member_by_id():
         return "DELETE FROM Members WHERE id = ?"
+
+    @staticmethod
+    def get_member_by_email():
+        return "SELECT * FROM Members WHERE email = ?"
+
+    @staticmethod
+    def get_member_by_name():
+        return "SELECT * FROM Members WHERE name = ?"

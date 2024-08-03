@@ -10,21 +10,28 @@ from dao.user_dao_queries import UserDaoQueries
 
 class AuthService:
     @staticmethod
-    def register(name, email, password, join_date,role,current_user_email):
+    def register(name, email, password, join_date, role, current_user_email):
         logging.info(f"User {current_user_email} is trying to register a new user")
         conn = get_db_connection()
         cursor = conn.cursor()
+
+        # Check if a user with the provided email already exists
+        cursor.execute(UserDaoQueries.get_user_by_email(), (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            return {"message": "User with this email already exists"}, 400
 
         cursor.execute(MemberDaoQueries.insert_new_member(), (name, email, join_date))
         member_id = cursor.lastrowid
 
         password_hash = generate_password_hash(password)
-        cursor.execute(UserDaoQueries.insert_new_user(), (member_id, email, password_hash,role))
+        cursor.execute(UserDaoQueries.insert_new_user(), (member_id, email, password_hash, role))
 
         conn.commit()
         conn.close()
 
-        return {"message": "User registered successfully by "+current_user_email+" as "+role+" role"}, 201
+        return {"message": "User registered successfully by " + current_user_email + " as " + role + " role"}, 201
 
     @staticmethod
     def login(email, password):

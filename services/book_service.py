@@ -14,43 +14,59 @@ class BookService:
         conn.commit()
         book_id = cursor.lastrowid
         conn.close()
-
-        # Add HATEOAS links
-        response = {
-            "message": "Book added successfully",
-            "book_id": book_id,
-            "_links": {
-                "self": url_for('books.get_book', book_id=book_id, _external=True),
-                "update": url_for('books.update_book', book_id=book_id, _external=True),
-                "delete": url_for('books.delete_book', book_id=book_id, _external=True),
-                "list": url_for('books.get_books', _external=True)
-            }
-        }
-        return response
+        return {"message": "Book created successfully", "book_id": book_id}
 
     @staticmethod
-    def get_books():
+    def get_books(author=None, published_start=None, published_end=None, page=1, limit=10, search=None):
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(BookDaoQueries.get_all_books())
+
+        # Build the SQL query dynamically based on filters and search
+        query = BookDaoQueries.get_all_books()
+        params = []
+
+        if author:
+            query += " WHERE author = ?"
+            params.append(author)
+
+        if published_start:
+            if 'WHERE' in query:
+                query += " AND published_date >= ?"
+            else:
+                query += " WHERE published_date >= ?"
+            params.append(published_start)
+
+        if published_end:
+            if 'WHERE' in query:
+                query += " AND published_date <= ?"
+            else:
+                query += " WHERE published_date <= ?"
+            params.append(published_end)
+
+        # Add search functionality
+        if search:
+            search_query = f"%{search}%"
+            if 'WHERE' in query:
+                query += " AND (title LIKE ? OR author LIKE ?)"
+            else:
+                query += " WHERE (title LIKE ? OR author LIKE ?)"
+            params.extend([search_query, search_query])
+
+        # Add pagination
+        query += " ORDER BY published_date ASC LIMIT ? OFFSET ?"
+        params.extend([limit, (page - 1) * limit])
+
+        # Execute the query
+        cursor.execute(query, params)
         books = cursor.fetchall()
+
+        # Get the total number of books matching the filters and search (without pagination)
+        total_query = "SELECT COUNT(*) FROM (" + query.replace(" ORDER BY published_date ASC LIMIT ? OFFSET ?", "") + ")"
+        cursor.execute(total_query, params[:-2])  # Remove pagination params for count
+        total = cursor.fetchone()[0]
+
         conn.close()
-
-        # Add HATEOAS links to each book
-        books_with_links = []
-        for book in books:
-            book_dict = dict(book)
-            book_dict["_links"] = {
-                "self": url_for('books.get_book', book_id=book['id'], _external=True),
-                "update": url_for('books.update_book', book_id=book['id'], _external=True),
-                "delete": url_for('books.delete_book', book_id=book['id'], _external=True)
-            }
-            books_with_links.append(book_dict)
-
-        # Add a link to create a new book
-        links = {"create": url_for('books.create_book', _external=True)}
-
-        return {"books": books_with_links, "_links": links}
+        return [dict(book) for book in books], total
 
     @staticmethod
     def get_book(book_id):
@@ -59,19 +75,7 @@ class BookService:
         cursor.execute(BookDaoQueries.get_book_by_id(), (book_id,))
         book = cursor.fetchone()
         conn.close()
-
-        if book:
-            # Add HATEOAS links
-            book_dict = dict(book)
-            book_dict["_links"] = {
-                "self": url_for('books.get_book', book_id=book_id, _external=True),
-                "update": url_for('books.update_book', book_id=book_id, _external=True),
-                "delete": url_for('books.delete_book', book_id=book_id, _external=True),
-                "list": url_for('books.get_books', _external=True)
-            }
-            return book_dict
-        else:
-            return None
+        return dict(book) if book else None
 
     @staticmethod
     def update_book(book_id, data):
@@ -82,17 +86,7 @@ class BookService:
                                                             data['language'], data['available_copies'], book_id))
         conn.commit()
         conn.close()
-
-        # Add HATEOAS links
-        response = {
-            "message": "Book updated successfully",
-            "_links": {
-                "self": url_for('books.get_book', book_id=book_id, _external=True),
-                "delete": url_for('books.delete_book', book_id=book_id, _external=True),
-                "list": url_for('books.get_books', _external=True)
-            }
-        }
-        return response
+        return {"message": "Book updated successfully"}
 
     @staticmethod
     def delete_book(book_id):
@@ -101,12 +95,4 @@ class BookService:
         cursor.execute(BookDaoQueries.delete_book_by_id(), (book_id,))
         conn.commit()
         conn.close()
-
-        # Add HATEOAS link to list books
-        response = {
-            "message": "Book deleted successfully",
-            "_links": {
-                "list": url_for('books.get_books', _external=True)
-            }
-        }
-        return response
+        return {"message": "Book deleted successfully"}
