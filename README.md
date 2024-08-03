@@ -41,31 +41,33 @@ The API will be accessible at http://localhost:9090.
 and you can view through swagger UI at http://localhost:9090/apidocs
 
 ### API Endpoints
-Auth
-Register: POST /auth/register
-Login: POST /auth/login
-Protected: GET /auth/protected
-Books
-Create Book: POST /api/books
-Get Books: GET /api/books
-Get Book by ID: GET /api/books/{book_id}
-Update Book: PUT /api/books/{book_id}
-Delete Book: DELETE /api/books/{book_id}
-Members
-Get Members: GET /api/members
-Get Member by ID: GET /api/members/{member_id}
-Update Member: PUT /api/members/{member_id}
-Delete Member: DELETE /api/members/{member_id}
-Loans
-Create Loan: POST /api/loans
-Get Loans: GET /api/loans
-Get Loan by ID: GET /api/loans/{loan_id}
-Update Loan: PUT /api/loans/{loan_id}
-Delete Loan: DELETE /api/loans/{loan_id}
-Swagger Documentation
+- **Auth**
+  - Register: `POST /auth/register`
+  - Login: `POST /auth/login`
+  - Protected: `GET /auth/protected`
+- **Books**
+  - Create Book: `POST /api/books`
+  - Get Books: `GET /api/books`
+  - Get Book by ID: `GET /api/books/{book_id}`
+  - Update Book: `PUT /api/books/{book_id}`
+  - Delete Book: `DELETE /api/books/{book_id}`
+- **Members**
+    - Create Member: `POST /api/members`
+    - Get Members: `GET /api/members`
+    - Get Member by ID: `GET /api/members/{member_id}`
+    - Update Member: `PUT /api/members/{member_id}`
+    - Delete Member: `DELETE /api/members/{member_id}`
+** Loans**
+    - Create Loan: `POST /api/loans`
+    - Get Loans: `GET /api/loans`
+    - Get Loan by ID: `GET /api/loans/{loan_id}`
+    - Update Loan: `PUT /api/loans/{loan_id}`
+    - Delete Loan: `DELETE /api/loans/{loan_id}`
+- Swagger Documentation
 Access the API documentation at http://localhost:9090/apidocs.
 
-Usage
-Register a User: Use the /auth/register endpoint to create a new user.
-Login: Use the /auth/login endpoint to obtain a JWT token.
-Access Protected Endpoints: Include the JWT token in the Authorization header (as Bearer <token>) for protected routes.
+### Usage
+
+- Register a User: Use the /auth/register endpoint to create a new user.
+- Login: Use the /auth/login endpoint to obtain a JWT token.
+- Access Protected Endpoints: Include the JWT token in the Authorization header (as Bearer <token>) for protected routes.
