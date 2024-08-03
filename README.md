@@ -57,7 +57,7 @@ and you can view through swagger UI at http://localhost:9090/apidocs
     - Get Member by ID: `GET /api/members/{member_id}`
     - Update Member: `PUT /api/members/{member_id}`
     - Delete Member: `DELETE /api/members/{member_id}`
-** Loans**
+- **Loans**
     - Create Loan: `POST /api/loans`
     - Get Loans: `GET /api/loans`
     - Get Loan by ID: `GET /api/loans/{loan_id}`
